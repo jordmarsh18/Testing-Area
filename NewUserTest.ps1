@@ -1,11 +1,11 @@
 <#
 .Synopsis
-Adds new users to tenant using Script User provided input values.
+Adds new O365 Users to tenant using Script User provided input values.
 .Description
-Creates new user in tenant. Users are created via Script User input values for Display Name, User Name, etc.
+Creates new Office 365 User in tenant. Users are created via Script User input values for Display Name, User Name, etc.
 Should the user already exist, then the the script will change the UserPrincipalName to allow creation of the new user. 
 Following this, the script user will then be prompted to confirm that they wish for the user to be created, and can cancel if desired.
-Following creation of the user, password setup and license assignment will still need to be undertaken via the O365 Admin Centre.
+Following creation of the user, password setup and license assignment will still need to be undertaken via the Admin Centre.
 
 .Example
 New-MsolUser
@@ -37,7 +37,7 @@ Write-Host "DisplayName: $Displayname"
 Write-Host "UserName: $UserPrincipalName"
 Write-Host "Domain: $Domain"
 
-#Check if an O365 account already exists. If so, account creation process will cease and opt force an automated login name change.
+#Check if an O365 account already exists. If so, account creation process will cease.
 
 Do {
     if ([bool] (Get-MsolUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue)) {
@@ -55,26 +55,15 @@ Do {
 } Until ($taken -eq $false)
 $UserPrincipalName = $UserPrincipalName.ToLower()
 
-Write-Host "____________________________________________________"
-Write-Host
-Write-Host "First Name: $Firstname"
-Write-Host "Last Name: $LastName"
-Write-Host "DisplayName: $Displayname"
-Write-Host "UserName: $UserPrincipalName"
-Write-Host "Domain: $Domain"
-Write-Host 
-
-Write-Host "Thank you - User will now be created" -ForegroundColor Green
-
 $Proceed = $null
-$Proceed = Read-Host "Proceed - Y/N?"
+$Proceed = Read-Host "Proceed with user creation - Y/N?"
 
 if ($Proceed -ieq 'Y') {
     New-MsolUser -DisplayName $DisplayName -FirstName $FirstName -LastName $LastName -UserPrincipalName $UserPrincipalName
 
     Get-MsolUser -UserPrincipalName $UserPrincipalName
 
-    Write-Host "Process complete. User $Displayname has now been created" -ForegroundColor Green
+    Write-Host "User $Displayname will now been created" -ForegroundColor Green
 
     #The account should now be appearing under Active Users in the O365 Admin Centre
 
