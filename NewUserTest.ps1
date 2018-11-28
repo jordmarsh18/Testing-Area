@@ -1,16 +1,16 @@
 <#
 .Synopsis
-Adds new O365 Users to tenant using Script User provided input values.
+Adds new users to tenant using Script User provided input values.
 .Description
-Creates new Office 365 User in tenant. Users are created via Script User input values for Display Name, User Name, etc.
+Creates new user in tenant. Users are created via Script User input values for Display Name, User Name, etc.
 Should the user already exist, then the the script will change the UserPrincipalName to allow creation of the new user. 
 Following this, the script user will then be prompted to confirm that they wish for the user to be created, and can cancel if desired.
-Following creation of the user, password setup and license assignment will still need to be undertaken via the Admin Centre.
+Following creation of the user, password setup and license assignment will still need to be undertaken via the O365 Admin Centre.
 
 .Example
 New-MsolUser
 
-This creates a new O365 user on the tenant.
+Adds new User to Microsoft Azure Directory
 #>
 
 
@@ -37,7 +37,7 @@ Write-Host "DisplayName: $Displayname"
 Write-Host "UserName: $UserPrincipalName"
 Write-Host "Domain: $Domain"
 
-#Check if an O365 account already exists. If so, account creation process will cease.
+#Check if an O365 account already exists. If so, account creation process will cease and opt force an automated login name change.
 
 Do {
     if ([bool] (Get-MsolUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue)) {
