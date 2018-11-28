@@ -29,7 +29,7 @@ $Displayname = $Firstname + " " + $LastName
 $Domain = Get-MsolDomain | Where-Object {($_.Name -notmatch ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name
 if (-not $Domain) {$Domain = Get-MsolDomain | Where-Object {($_.Name -match ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name}
  
-$UserPrincipalName = $FirstName + "." + $LastName + "@$Domain"
+$UserPrincipalName = $FirstName + ".$LastName" + "@$Domain"
 
 Write-Host "First Name: $Firstname"
 Write-Host "Last Name: $LastName"
@@ -74,7 +74,7 @@ if ($Proceed -ieq 'Y') {
 
     Get-MsolUser -UserPrincipalName $UserPrincipalName
 
-    Write-Host "Process complete. user $Displayname has now been created" -ForegroundColor Green
+    Write-Host "Process complete. User $Displayname has now been created" -ForegroundColor Green
 
     #The account should now be appearing under Active Users in the O365 Admin Centre
 
@@ -82,4 +82,3 @@ if ($Proceed -ieq 'Y') {
 else {
     Write-Host "Process cancelled" -ForegroundColor Yellow
 }
-
