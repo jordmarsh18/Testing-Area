@@ -2,10 +2,10 @@
 .Synopsis
 Adds new O365 Users to tenant using Script User provided input values.
 .Description
-This script creates new users in O365. Users are created using input values provided by the script user for Username, Displayname, etc.
-Should the user account already be set up on the tenant, then the username will be altered by the script to allow creation of a new account. 
-However, following this the script user will still be prompted to confirm that they want to create the account, and can cancel if desired.
-Following the creation of the account, you will still be required to log in and set up a password for the new user, as well as add an appropriate license for them.
+Creates new Office 365 User in tenant. Users are created via Script User input values for Display Name, User Name, etc.
+Should the user already exist, then the the script will change the UserPrincipalName to allow creation of the new user. 
+Following this, the script user will then be prompted to confirm that they wish for the user to be created, and can cancel if desired.
+Following creation of the user, password setup and license assignment will still need to be undertaken via the Admin Centre.
 .Example
 New-MsolUser
 
