@@ -55,8 +55,7 @@ Do {
 } Until ($taken -eq $false)
 $UserPrincipalName = $UserPrincipalName.ToLower()
 
-$Proceed = $null
-$Proceed = Read-Host "Proceed with user creation - Y/N?"
+$Proceed = Read-Host "Proceed with user creation - Y/N?" -ForegroundColor Green
 
 if ($Proceed -ieq 'Y') {
     New-MsolUser -DisplayName $DisplayName -FirstName $FirstName -LastName $LastName -UserPrincipalName $UserPrincipalName
