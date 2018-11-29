@@ -62,7 +62,7 @@ if ($Proceed -ieq 'Y') {
 
     Get-MsolUser -UserPrincipalName $UserPrincipalName
 
-    Write-Host "User $Displayname will now been created" -ForegroundColor Green
+    Write-Host "User $Displayname will now be created" -ForegroundColor Green
 
     #The account should now be appearing under Active Users in the O365 Admin Centre
 
