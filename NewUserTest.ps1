@@ -37,7 +37,7 @@ Write-Host "DisplayName: $Displayname"
 Write-Host "UserName: $UserPrincipalName"
 Write-Host "Domain: $Domain"
 
-#Check if an O365 account already exists. If so, account creation process will cease.
+#Check if an O365 account already exists. 
 
 Do {
     if ([bool] (Get-MsolUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue)) {
@@ -64,8 +64,8 @@ if ($Proceed -ieq 'Y') {
 
     Write-Host "User $Displayname will now be created" -ForegroundColor Green
 
-    #The account should now be appearing under Active Users in the O365 Admin Centre
-
+    <#Upon completion, the account should now be appearing under Active Users in the O365 Admin Centre, awaiting 
+    license assignment and password input.#>
 }
 else {
     Write-Host "Process cancelled" -ForegroundColor Yellow
