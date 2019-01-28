@@ -1,0 +1,19 @@
+#Exernal Users/Group & Permissions
+
+#Adds new PNP roles & Groups
+
+#$group = Get-UnifiedGroup -filter {alias -like "JordanTestGroup"} - Success!
+#$group = Get-UnifiedGroup -filter {alias -like "DEV-109"}
+$group = Get-UnifiedGroup -filter {group -like "JordanTestGroup"}
+
+Connect-PnPOnline -url $group.SharepointSiteURL
+Add-PnPRoleDefinition -RoleName "Custom Read" -Description "Read Permissions excluding Versioning" -Clone "Read" -Exclude ViewVersions
+
+New-PnPGroup -Title ($group.DisplayName + " External Users")
+Set-PnPGroupPermissions -Identity ($group.DisplayName + " External Users") -AddRole "Custom Read"
+
+Write-Host "Role definition and permissions for $group have now been amended" -ForegroundColor Green
+
+
+
+#Still need to refine code for adding users from SharePoint List to aforementioned group.
