@@ -16,4 +16,5 @@ Write-Host "Role definition and permissions for $group have now been amended" -F
 
 
 
-#Still need to refine code for adding users from SharePoint List to aforementioned group.
+<# Still need to refine code for adding users to group from SharePoint List (At the moment, code locates the list
+but is unable to pull out the email addresses) #>
