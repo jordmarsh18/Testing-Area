@@ -2,8 +2,8 @@
 .Synopsis
 Adds new-pnp site (No provisioning necessary)
 .Description
-PnP Sites are created via user input for the Title, Alias, Type and Url Fields. PnP creation also creates an associated
-Unified Group and SharePoint URL, which does not require provisioning.
+PnP Sites are created via user input for Title, Alias, and Type. PnP creation also creates an
+associated unified group and provides a SharePoint URL, which does not require provisioning. 
 .Example
 
 #>
@@ -11,7 +11,6 @@ Unified Group and SharePoint URL, which does not require provisioning.
 
 $Name = Read-Host "Please enter a name for the site" 
 $Type = Read-Host "Please specify the type of this site - Team/Communication"
-$Url = https://sharepoint121.sharepoint.com/sites/$Name
 
 
 if ((get-unifiedgroup).alias -contains $Name) {
@@ -26,12 +25,10 @@ elseif ($Type -ieq 'Team') {
 }
 elseif ($Type -ieq 'Communication') {
     Write-Host "$Type Site '$Name' will be created" -ForegroundColor Green
-    New-PnPSite -Type $Type -Title $Name -Url $Url
+    New-PnPSite -Type $Type -Title $Name -Url https://sharepoint121.sharepoint.com/sites/$Name
 
     Write-Host "$Type Site $Name has now been created" -ForegroundColor Green
 } 
-
-
 
 
 #New-PnPSite has now have been created.
