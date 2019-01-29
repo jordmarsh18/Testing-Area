@@ -2,8 +2,8 @@
 .Synopsis
 Adds new-pnp site (No provisioning necessary)
 .Description
-PnP Sites are created via user input for Title, Alias, and Type. PnP creation also creates an
-associated unified group and provides a SharePoint URL, which does not require provisioning. 
+PnP Sites are created via user input for the Title, Alias, Type and Url Fields. PnP creation also creates an associated
+Unified Group and SharePoint URL, which does not require provisioning.
 .Example
 
 #>
