@@ -2,11 +2,9 @@
 
 #Adds new PNP roles & Groups
 
-#$group = Get-UnifiedGroup -filter {alias -like "JordanTestGroup"} - Success!
-#$group = Get-UnifiedGroup -filter {alias -like "DEV-109"}
-$group = Get-UnifiedGroup -filter {group -like "JordanTestGroup"}
+$group = Get-UnifiedGroup -filter {alias -like "TeamSiteTest"}
 
-Connect-PnPOnline -url $group.SharepointSiteURL
+Connect-PnPOnline -url $group.SharepointSiteURL 
 Add-PnPRoleDefinition -RoleName "Custom Read" -Description "Read Permissions excluding Versioning" -Clone "Read" -Exclude ViewVersions
 
 New-PnPGroup -Title ($group.DisplayName + " External Users")
@@ -16,5 +14,15 @@ Write-Host "Role definition and permissions for $group have now been amended" -F
 
 
 
-<# Still need to refine code for adding users to group from SharePoint List (At the moment, code locates the list
-but is unable to pull out the email addresses) #>
+#This should pull the users from the 'Access' list
+#Note - External users first have to be created in AD Azure!!!!
+$users = Get-PnPListItem -List 'Access'
+
+#This should add the users from the 'Access' list to the group created above
+ foreach ($user in $users) {
+ Add-PnPUserToGroup -EmailAddress $user['i4wy'] -Identity ($group.DisplayName + " External Users") #-SendEmail $true -EmailBody 'This is a test email'
+ } #end foreach
+ Write-host "The users have now been added" -ForegroundColor Green
+
+#"$($group.DisplayName) External Users"
+#i4wy
