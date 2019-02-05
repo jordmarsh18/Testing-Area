@@ -1,6 +1,6 @@
 #Exernal Users/Group & Permissions
 
-#Adds new PNP roles & Groups
+#Adds new PNP Roles & Groups
 
 $group = Get-UnifiedGroup -filter {alias -like "TeamSiteTest"}
 
@@ -13,16 +13,13 @@ Set-PnPGroupPermissions -Identity ($group.DisplayName + " External Users") -AddR
 Write-Host "Role definition and permissions for $group have now been amended" -ForegroundColor Green
 
 
-
 #This should pull the users from the 'Access' list
-#Note - External users first have to be created in AD Azure!!!!
+#NOTE - EXTERNAL USERS SHOULD BE CREATED IN AD AZURE BEFOREHAND (AS PERMANANT OR GUEST) IN ORDER FOR THEM TO BE ADDED INTO THE GROUP
 $users = Get-PnPListItem -List 'Access'
 
 #This should add the users from the 'Access' list to the group created above
  foreach ($user in $users) {
- Add-PnPUserToGroup -EmailAddress $user['i4wy'] -Identity ($group.DisplayName + " External Users") #-SendEmail $true -EmailBody 'This is a test email'
+ Add-PnPUserToGroup -EmailAddress $user['i4wy'] -Identity ($group.DisplayName + " External Users") -SendEmail -EmailBody 'This is a test invite email'
+
  } #end foreach
  Write-host "The users have now been added" -ForegroundColor Green
-
-#"$($group.DisplayName) External Users"
-#i4wy
