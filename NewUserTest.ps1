@@ -22,6 +22,7 @@ Write-Host
 $LastName = Read-Host "Enter the Last Name"
 Write-Host
 $Displayname = $Firstname + " " + $LastName
+$UserType = Read-Host "Enter the User Type - Member/Guest"
 $UseageLocation = Read-Host "Please enter in the two letter country code for this license"
 
 #Acquire domain from Get-MSolDomain command and filter out onmicrosoft.com
@@ -36,6 +37,7 @@ Write-Host "First Name: $Firstname"
 Write-Host "Last Name: $LastName"
 Write-Host "DisplayName: $Displayname"
 Write-Host "UserName: $UserPrincipalName"
+Write-Host "UserType: $UserType"
 Write-Host "Domain: $Domain"
 Write-Host "Location: $UseageLocation"
 
@@ -59,7 +61,7 @@ $UserPrincipalName = $UserPrincipalName.ToLower()
 $Proceed = Read-Host "Proceed with user creation - Y/N?"
 
 if ($Proceed -ieq 'Y') {
-    New-MsolUser -DisplayName $DisplayName -FirstName $FirstName -LastName $LastName -UserPrincipalName $UserPrincipalName -UsageLocation $UseageLocation
+    New-MsolUser -DisplayName $DisplayName -FirstName $FirstName -LastName $LastName -UserPrincipalName $UserPrincipalName -UserType $UserType -UsageLocation $UseageLocation
 
     Get-MsolUser -UserPrincipalName $UserPrincipalName
 
