@@ -26,6 +26,8 @@ elseif ($Type -ieq 'Team') {
 elseif ($Type -ieq 'Communication') {
     Write-Host "$Type Site '$Name' will be created" -ForegroundColor Green
     New-PnPSite -Type $Type -Title $Name -Url https://sharepoint121.sharepoint.com/sites/$Name
+        # ^^^ Bug with this wherein sometimes the script will fail to create a communication site.
+    #This appear to be resolved by copying and re-pasting the url in the Url parameter, then re-running the script?
 
     Write-Host "$Type Site $Name has now been created" -ForegroundColor Green
 } 
