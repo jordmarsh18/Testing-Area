@@ -1,4 +1,14 @@
-#Add singular users to every internal/client group and a security group.
+<#
+.Synopsis
+Add singular users to every internal/client group and a specified security group, via user input values.
+.Description
+This cmdlet can add an Office 365 user to any groups associated with the tenant, as well as MFA security groups.
+Following this, the user will receive an email informing them of their inclusion into the group.
+.Example
+Add-UnifiedGroupLinks -Identity TestGroup -LinkType Members -Links John.Smith@Contoso.com 
+
+Adds the user John Smith to the Test Group specifically
+#>
 
 $groups = Get-UnifiedGroup
 $user = Read-Host "Please specify user to be moved into groups" #E.g Jordan.Marsh, Ben.Golding, etc
