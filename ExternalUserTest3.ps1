@@ -38,7 +38,7 @@ $Add = Add-PnPListItem -List "Access List" -Values @{
     "bpan" = $email;
 }
 
-#This adds the user to the newly created custom access group
+#This takes the details from the SharePoint list and adds the user to the newly created custom access group
 
 $users = Get-PnPListItem -List "Access List" #List name goes here
 foreach ($user in $users) {
