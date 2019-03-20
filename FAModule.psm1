@@ -1,77 +1,120 @@
-#A collection of Powershell cmdlets, functions, and scripts, unified into a singe module.
-#Adds new User to Fletcher Associates Azure Active Directory
 
+
+<#This command creates a new Fletcher Associates user, which can be of the member or guest usertype. If it's the former, 
+then onboarding can be completed by using the other follow up scripts/functions on this github account - e.g, Add-FAUsertoGroup, etc.
+If it's the latter, then the command set also creates a PnP group and role definition aimed at external users, and adds
+the guest user to a SharePoint list which details all external users currently with guest access.
+#>
 Function New-FAUser {
     [CmdletBinding()]
-
-    $Credential = Get-Credential
-    Connect-MsolService -Credential $Credential
-
-    $Firstname = Read-Host "Enter the First Name"
-    Write-Host
-    $LastName = Read-Host "Enter the Last Name"
-    Write-Host
-    $Displayname = $Firstname + " " + $LastName
-    $UserType = Read-Host "Enter the User Type - Member/Guest"
-    $UseageLocation = Read-Host "Please enter in the two letter country code for this license"
-    #$link = $Firstname + ".$LastName"
-
-    #Acquire domain from Get-MSolDomain command and filter out onmicrosoft.com
-    #If a domain is not found, it will revert to the onmicrosoft.com domain
-
-    $Domain = Get-MsolDomain | Where-Object {($_.Name -notmatch ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name
-    if (-not $Domain) {$Domain = Get-MsolDomain | Where-Object {($_.Name -match ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name}
- 
-    $UserPrincipalName = $FirstName + ".$LastName" + "@$Domain"
-
-    Write-Host "First Name: $Firstname"
-    Write-Host "Last Name: $LastName"
-    Write-Host "DisplayName: $Displayname"
-    Write-Host "UserName: $UserPrincipalName"
-    Write-Host "UserType: $UserType"
-    Write-Host "Domain: $Domain"
-    Write-Host "Location: $UseageLocation"
-
-    #Check if an O365 account already exists
-    Do {
-        if ([bool] (Get-MsolUser -UserPrincipalName $UserPrincipalName -ErrorAction SilentlyContinue)) {
-            Write-Host "Login name" $UserPrincipalName.ToUpper() "already exists - please review!" -ForegroundColor Yellow
-            $UserPrincipalName = $FirstName + $LastName + "@$Domain"
-            Write-Host
-            Write-Host "Changing Login name to" $UserPrincipalName.toUpper() -ForegroundColor Yellow
-            Write-Host
-            $Taken = $true
+    $credential = Get-Credential
+    Connect-MsolService -Credential $credential
     
+    $usertype = Read-Host "Please specify type of user - Member/Guest?"
+    ####MEMBER#### This creates the user as the Member type
+    if ($usertype -ieq "Member") {
+        $firstName = Read-Host "Please enter the first name"
+        $lastName = Read-Host "Please enter the last name"
+        $displayName = $firstName + " " + $lastName
+        $usageLocation = "GB"
+        
+        #Acquire domain from Get-MSolDomain command and filter out onmicrosoft.com
+        #If a domain is not found, it will revert to the onmicrosoft.com domain
+        $domain = Get-MsolDomain | Where-Object {($_.Name -notmatch ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name
+        if (-not $domain) {$domain = Get-MsolDomain | Where-Object {($_.Name -match ".onmicrosoft.com") -and ($_.Status -eq "Verified") -and ($_.Authentication -eq "Managed")} | Select-Object -ExpandProperty Name}
+    
+        $userPrincipalName = $FirstName + ".$LastName" + "@$Domain"
+        
+        Write-Host "First Name: $firstname"
+        Write-Host "Last Name: $lastName"
+        Write-Host "DisplayName: $displayname"
+        Write-Host "UserName: $userPrincipalName"
+        Write-Host "UserType: $userType"
+        Write-Host "Domain: $domain"
+        Write-Host "Location: $usageLocation"
+    
+        #Check if an O365 account already exists
+        Do {
+            if ([bool] (Get-MsolUser -UserPrincipalName $userPrincipalName -ErrorAction SilentlyContinue)) {
+                Write-Host "Login name" $userPrincipalName.ToUpper() "already exists - please review!" -ForegroundColor Yellow
+                $userPrincipalName = $firstName + $lastName + "@$domain"
+                Write-Host
+                Write-Host "Changing Login name to" $userPrincipalName.toUpper() -ForegroundColor Yellow
+                Write-Host
+                $Taken = $true
+        
+            }
+            else {
+                $taken = $false
+            }
+        } Until ($taken -eq $false)
+        $userPrincipalName = $userPrincipalName.ToLower()
+    
+        $proceed = Read-Host "Proceed with user creation - Y/N?"
+        if ($proceed -ieq "Y") {
+            New-MsolUser -FirstName $firstName -LastName $lastName -DisplayName $displayName -UserPrincipalName $userPrincipalName -UserType $usertype -UsageLocation $usageLocation
+            <#Set-MsolUserLicense - Possibly include license assignment at this point - need to test first. Unsure as to whether using this cmdlet when there's no
+            licenses available would bring up an error message or whether it would infact just automatically purchase a new one, providing payment details were logged
+            with the tenant. For the time being, continue with manual assignment through the O365 portal.
+            #>
+            Get-MsolUser -UserPrincipalName $userPrincipalName
+            Write-Host "User '$displayName has now been created" -ForegroundColor Green
+            
+            #Upon completion, the user should be sat in the Office 365 user portal, awaiting license and password assignment.
         }
         else {
-            $taken = $false
+            Write-Host "User Creation process cancelled" -ForegroundColor Yellow
         }
-    } Until ($taken -eq $false)
-    $UserPrincipalName = $UserPrincipalName.ToLower()
-
-    $Proceed = Read-Host "Proceed with user creation - Y/N?"
-
-    if ($Proceed -ieq 'Y') {
-        New-MsolUser -DisplayName $DisplayName -FirstName $FirstName -LastName $LastName -UserPrincipalName $UserPrincipalName -UserType $UserType -UsageLocation $UseageLocation
-
-        Get-MsolUser -UserPrincipalName $UserPrincipalName
-
-        Write-Host "User '$Displayname' will now be created" -ForegroundColor Green
-
-        #May take out later - test first
-        #Add-UnifiedGroupLinks -identity FletcherAssociates -Linktype Members -Links $link 
-
-        <#Upon completion, the account should now be appearing under Active Users in the O365 Admin Centre, awaiting 
-    license assignment and password input#>
-
     }
-    else {
-        Write-Host "User Creation process cancelled" -ForegroundColor Yellow
+    ###Guest### This creates a user as the Guest type
+    elseif ($usertype -ieq "Guest") {
+        Connect-AzureAD
+        $firstName = Read-host "Please enter in the first name"
+        $lastName = Read-Host "Please enter in the last name"
+        $postion = Read-Host "Please enter in the position of the user"
+        $company = Read-Host "Please enter in the company"
+        $number = Read-Host "Please enter in the contact number of the user"
+        $email = Read-Host "Please enter in the email address of the guest user"
+    
+        New-AzureADMSInvitation  -InvitedUserDisplayName "$firstName $lastName" -InvitedUserEmailAddress $email -InviteRedirectUrl https://www.office.com/?auth=2 -SendInvitationMessage $true
+    
+        Start-Sleep -Seconds 5
+    
+        Write-Host "Guest user $firstName $lastName has now been created" -ForegroundColor Green
+    
+        $group = get-unifiedgroup -filter {alias -like "MemberGuestTestSite"}
+        Connect-PnPOnline -Url $group.SharepointSiteUrl
+        Add-PnPRoleDefinition -RoleName "Custom" -Description "For External Users: Read Permissions, excluding Versioning" -Clone "Read" -Exclude ViewVersions
+        New-PnPGroup -Title ($group.DisplayName + " External Users")
+        Set-PnPGroupPermissions -Identity ($group.DisplayName + " External Users") -AddRole "Custom"
+    
+        Write-Host "Role definitions and permission for group $group have now been amended/amended." -ForegroundColor Green
+    
+        $Add = Add-PnPListItem -List "External Access" -Values @{
+            "First_x0020_Name"       = $firstName; 
+            "Last_x0020_Name"       = $lastName;
+            "Position"       = $postion;
+            "Company"       = $company;
+            "Contact_x0020_Number" = $number;
+            "Email"       = $email;
+        }
+    
+        #This adds the user to the newly created custom access group
+    
+        $users = Get-PnPListItem -List "External Access" #List name goes here
+        foreach ($user in $users) {
+            $Adduser = Add-PnPUserToGroup -EmailAddress $user['Email'] -Identity ($group.DisplayName + " External Users") #-SendEmail -EmailBody "This is an invitation email" -Verbose
+        } #end foreach
+    
+        #output message
+        Write-Host "The guest user $firstName $lastName has been created, with groups/permissions assigned, and site invitation sent." -ForegroundColor Green
+    #>
     }
+    
 }
 
+#This command creates a new Fletcher Associates Unified Group site
 
-#New Unified Group on Fletcher Associates tenant
 function New-FAUnifiedGroup {
     [CmdletBinding()]
 
@@ -97,7 +140,8 @@ function New-FAUnifiedGroup {
     }
 }
 
-#Creates new PnP site on Fletcher Associates tenant
+#This command creates a new Fletcher Associates PnP site
+
 function New-FAPnPSite {
     [CmdletBinding()]
 
@@ -123,12 +167,16 @@ function New-FAPnPSite {
     } 
 }
 
-#Adds Fletcher Associates tenant user to groups
+#This command adds a user to a the Fletcher Associates group:
 function Add-FAUsertoGroup {
     [CmdletBinding()]
 
     $groups = Get-UnifiedGroup
-    $user = Read-Host "Please specify user to be moved into groups" #Insert User I.E Ben.Golding, Jordan.Marsh, etc
+
+    $members = (Get-UnifiedGroupLinks -LinkType Members -Identity FletcherAssociates | 
+
+        Where-Object -Property 'Name' -NE 'Jordan.Marsh').PrimarySmtpAddress 
+    $user = Read-Host "Please specify user to be moved into groups:"
     Write-Host 
 
 
@@ -136,14 +184,16 @@ function Add-FAUsertoGroup {
 
         Write-Output "Adding members to $($group.Alias)" 
 
-        Add-UnifiedGroupLinks -Identity $group.Alias -LinkType Members -Links $user
+        Add-UnifiedGroupLinks -Identity $group.Alias -LinkType Members -Links $user #Insert User I.E Ben.Golding, Jordan.Marsh, etc
     }
     Write-Host "$user has now been added to groups" -ForegroundColor Cyan
 }
 
-function Add-FAUsertoIntCliSecGroup {
-    [CmdletBinding()]
-    $groups = Get-UnifiedGroup
+#This command adds a user to the Fletcher Associates internal, client and security groups
+function Add-FAUsertoIntCliSecGroups {
+[CmdletBinding()]
+
+$groups = Get-UnifiedGroup
 $user = Read-Host "Please specify user to be moved into groups" #E.g Jordan.Marsh, Ben.Golding, etc
 Write-Host 
 
@@ -178,24 +228,25 @@ elseif ($msolproceed -ieq "MDM (Soft)") {
 #Output
 
 Write-Host "$user has now been added to internal, client, and security groups." -ForegroundColor Cyan
-
 }
 
-#Add all users in the Fletcher Associates group to all other unified groups
+#This command removes a user from unified groups
 
-function Add-allFAMemberstoGroup {
+function Remove-FAUserfromGroup{
     [CmdletBinding()]
-    $groups = Get-UnifiedGroup
-    $members = (Get-UnifiedGroupLinks -LinkType Members -Identity FletcherAssociates | 
-        Where-Object -Property 'Name' -NE 'Jordan.Marsh').PrimarySmtpAddress 
-    
-        foreach ($group in $groups) {
-    
-            Write-Output "Adding members to $($group.Alias)" 
-        
-            Add-UnifiedGroupLinks -Identity $group.Alias -LinkType Members -Links $members 
-        }
-    
-        Write-Host "Fletcher Associates Members have now been added to internal/client groups." -Foregroundcolor Green
+
+
+    $user = read-host "Please specify user to be removed from group"
+    Write-Host
+    $groups = get-unifiedgroup
+
+    foreach ($group in $groups) {
+
+        Write-Output "Removing from $($group.Alias)" 
+
+        Remove-UnifiedGroupLinks -Identity $group.Alias -Links $user -LinkType Members -Confirm:$false
+    }
+
+    Write-Host "$user has now been removed from groups" -ForegroundColor Green
 
 }
