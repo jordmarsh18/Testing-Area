@@ -1,3 +1,10 @@
+<#Possibly replace New-FAUser
+This command creates a new Fletcher Associates user, which can be of the member or guest usertype. If it's the former, 
+then onboarding can be completed by using the other follow up scripts/functions on this github account - e.g, Add-FAUsertoGroup, etc.
+If it's the latter, then the command set also creates a PnP group and role definition aimed at external users, and adds
+the guest user to a SharePoint list which details all external users currently with guest access.
+#>
+
 #New Fletcher Associates User - Member AND Guest:
 
 $credential = Get-Credential
