@@ -1,5 +1,5 @@
 #Removes old views and recreates them but with added queries.
-
+#Add-PnPView occasionally needs to be wrapped in a $ variable for some reason, otherwise the command doesn't work?
 
 $sites = Get-UnifiedGroup -Filter {[Alias] -like "BSS-*"}
 
