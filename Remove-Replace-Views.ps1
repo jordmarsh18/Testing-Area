@@ -1,3 +1,6 @@
+#Removes old views and recreates them but with added queries.
+
+
 $sites = Get-UnifiedGroup -Filter {[Alias] -like "BSS-*"}
 
 foreach ($site in $sites) {
