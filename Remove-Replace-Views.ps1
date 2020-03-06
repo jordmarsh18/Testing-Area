@@ -1,4 +1,5 @@
-#Below script used for FA Employee Folders - Creates Active/Ex-Employee Views, filtering on the Employee Status column, and also displays folder items alphabetically.
+#Below script used for FA Employee Folders
+#Creates Active/Ex-Employee Views, filtering on the Employee Status column, and also displays folder items alphabetically.
 
 
 $sites = Get-UnifiedGroup -Filter {[Alias] -like "BSS-*"}
